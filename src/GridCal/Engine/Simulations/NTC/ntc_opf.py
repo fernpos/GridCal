@@ -1207,6 +1207,8 @@ def formulate_hvdc_Pmode3_single_flow(
         # to pass from MW/deg to p.u./rad -> * 180 / pi / (sbase=100)
         k = angle_droop * 57.295779513 / Sbase
 
+        M = 1000 * rate
+
         a_lb = P0 - (k * (angle_max_t + angle_max_f))
         a_ub = P0 + k * (angle_max_f + angle_max_t)
 
@@ -1243,19 +1245,21 @@ def formulate_hvdc_Pmode3_single_flow(
             'zb_' + suffix
         )
 
+
+
         #Constraints formulation
 
         solver.Add(
-            a == P0 + k * (angles_f - angles_t),
+            a == P0 + k * (angles_t - angles_f ),
             'theorical_unconstrainded_flow_' + suffix
         )
 
         #b is the solution
 
-        solver.Add(
-            b_abs - a_abs <= 0,
-            'hvdc_flow_constraint_' + suffix
-        )
+        #solver.Add(
+        #    b_abs - a_abs <= 0,
+        #    'hvdc_flow_constraint_' + suffix
+        #)
 
         solver.Add(
             0 <= a_abs - a,
@@ -1294,6 +1298,40 @@ def formulate_hvdc_Pmode3_single_flow(
             b_abs + b <= 2 * rate * (1 - zb),
             'b_abs_value_constraint_4_' + suffix
         )
+
+        #New constraints to model HVSDC behaviour
+
+        zc = solver.BoolVar(
+            'zc_' + suffix
+        )
+
+        solver.Add(
+            rate - M * (1 - zc) <= b_abs,
+            'behaviour_Pmode3_1_' + suffix
+        )
+
+        solver.Add(
+            b_abs <= rate + M * (1 - zc),
+            'behaviour_Pmode3_2_' + suffix
+        )
+
+        solver.Add(
+            a_abs - M * zc <= b_abs,
+            'behaviour_Pmode3_3_' + suffix
+        )
+
+        solver.Add(
+            b_abs <= a_abs + M * zc,
+            'behaviour_Pmode3_4_' + suffix
+        )
+
+
+
+        solver.Add(
+            za - zb == 0,
+            'same_sign_' + suffix
+        )
+
 
     else:
         b=0
@@ -1408,7 +1446,7 @@ def formulate_hvdc_flow(solver: pywraplp.Solver, nhvdc, names, rate, angles, ang
 
 def formulate_hvdc_flow_old(solver: pywraplp.Solver, nhvdc, names, rate, angles, hvdc_active, Pt, angle_droop, control_mode,
                         dispatchable, F, T, Pinj, Sbase, inf, inter_area_hvdc,
-                        logger: Logger, force_exchange_sense=False):
+                        logger: Logger, force_exchange_sense=False, angles_max=None):
     """
     Formulate the HVDC flow
     :param solver: Solver instance to which add the equations

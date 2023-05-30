@@ -64,6 +64,8 @@ def kmeans_approximate_sampling(X, n_points=10):
         prob = prob_dict[lbl]
         closest_prob[i] = prob
 
+    csv_path = r'\\mornt4.ree.es\DESRED\DPE-Internacional\Interconexiones\FRANCIA\2023 MoU Pmode3\Pmode3_conting\8GW\h_pmode1\kmeans2.csv'
+    pd.DataFrame([closest_idx, closest_prob], index=['idx', 'prob']).T.to_csv(csv_path)
     return closest_idx, closest_prob
 
 
