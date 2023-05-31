@@ -1157,16 +1157,16 @@ def formulate_contingency(
 
 
 def formulate_hvdc_Pmode3_single_flow(
-        solver: pywraplp.Solver, active, P0, rate, Sbase, angle_droop, angle_max_f, angle_max_t, suffix, angle_f,
-        angle_t
+        solver: pywraplp.Solver, active, P0, rate, Sbase, angle_droop, angle_max_f, angle_max_t, suffix, angles_f,
+        angles_t
 ):
     """
         Formulate the HVDC flow
         :param solver: Solver instance to which add the equations
         :param rate: HVDC rate
         :param P0: Power offset for HVDC
-        :param angle_f: bus voltage angle node from (LP Variable)
-        :param angle_t: bus voltage angle node to (LP Variable)
+        :param angles_f: bus voltage angle node from (LP Variable)
+        :param angles_t: bus voltage angle node to (LP Variable)
         :param angle_max_f: maximum bus voltage angle node from (LP Variable)
         :param angle_max_t: maximum bus voltage angle node to (LP Variable)
         :param active: Boolean. HVDC active status (True / False)
@@ -1177,24 +1177,28 @@ def formulate_hvdc_Pmode3_single_flow(
             - flow_f: Array of formulated HVDC flows (mix of values and variables)
         """
 
-    # |(theta_i - theta_j) * k + P0| >= |Pij|
-    # |b| - |a| <= 0
-    #
-    # a = (theta_i - theta_j) * k + P0
+    # |(theta_j - theta_i) * k + P0| >= |Pij|
+    # a = (theta_j - theta_i) * k + P0
     # b = Pij
+    #
+    # lb_a = -4pi * k + P0
+    # ub_a = 4pi * k + P0
+    #
+    # lb_b = -rate
+    # ub_b = rate
+    #
     # a_abs = |a|
     # b_abs = |b|
     #
     # b_abs - a_abs <=0
     #
-    # lb_a = -4pi * k + P0
-    # ub_a = 4pi * k + P0
-    # lb_b = -rate
-    # ub_b = rate
     # lb_a_abs = 0
     # ub_a_abs = 4pi * k + P0
-    # lb_b_abs = 0
-    # ub_b_abs = rate
+    #
+    # lb_b = 0
+    # ub_b = rate
+
+
 
     if active:
         rate = rate / Sbase
@@ -1203,13 +1207,15 @@ def formulate_hvdc_Pmode3_single_flow(
         # to pass from MW/deg to p.u./rad -> * 180 / pi / (sbase=100)
         k = angle_droop * 57.295779513 / Sbase
 
-        # Variables declaration
-        lim_a = P0 + k * (angle_max_f + angle_max_t)
-        # lim_a = 1000 * rate
+        M = 1000 * rate
 
+        a_lb = P0 - (k * (angle_max_t + angle_max_f))
+        a_ub = P0 + k * (angle_max_f + angle_max_t)
+
+        #Variables declaration
         a = solver.NumVar(
-            -lim_a,
-            lim_a,
+            a_lb,
+            a_ub,
             'a_' + suffix
         )
 
@@ -1221,7 +1227,7 @@ def formulate_hvdc_Pmode3_single_flow(
 
         a_abs = solver.NumVar(
             0,
-            lim_a,
+            P0 + k * (angle_max_t + angle_max_f),
             'a_abs_' + suffix
         )
 
@@ -1233,51 +1239,47 @@ def formulate_hvdc_Pmode3_single_flow(
 
         za = solver.BoolVar(
             'za_' + suffix
-        )  # to force a_abs to be +-a
+        )
 
         zb = solver.BoolVar(
             'zb_' + suffix
-        )  # to force b_abs to be +-b
+        )
 
-        # Constraints formulation, b is the solution
 
-        solver.Add(
-            # a == P0 + k * (angle_f - angle_t),
-            a == P0 + k * (angle_t - angle_f),
-            'theoretical_unconstrainded_flow_' + suffix
-        )  # Pmode3 behavior
+
+        #Constraints formulation
 
         solver.Add(
-            b_abs - a_abs <= 0,
-            'hvdc_flow_constraint_' + suffix
-        )  # theoretical flow could be greater than real one
+            a == P0 + k * (angles_t - angles_f ),
+            'theorical_unconstrainded_flow_' + suffix
+        )
 
-        # 0 <= a_abs - a <= 2 * lim_a * za, when za = 0, then a = a_abs.
-        # Otherwise, a value between 0 and lim_a
+        #b is the solution
+
+        #solver.Add(
+        #    b_abs - a_abs <= 0,
+        #    'hvdc_flow_constraint_' + suffix
+        #)
+
         solver.Add(
             0 <= a_abs - a,
             'a_abs_value_constraint_1_' + suffix
-        )  # absoloute definition
-
-        solver.Add(
-            a_abs - a <= 2 * lim_a * za,
-            'a_abs_value_constraint_2_' + suffix
         )
 
-        # 0 <= a_abs + a <= 2 * lim_a * (1-za), when za = 1, then a = -a_abs.
-        # Otherwise, a value between 0 and lim_a
+        solver.Add(
+            a_abs - a <= 2 * a_ub * za,
+            'a_abs_value_constraint_2_' + suffix
+        )
         solver.Add(
             0 <= a_abs + a,
             'a_abs_value_constraint_3_' + suffix
         )
 
         solver.Add(
-            a_abs + a <= 2 * lim_a * (1 - za),
+            a_abs + a <= 2 * a_ub * (1 - za),
             'a_abs_value_constraint_4_' + suffix
         )
 
-        # 0 <= b_abs - b <= 2 * rate * zb, when zb = 0, then b = b_abs.
-        # Otherwise, a value between 0 and lim_a
         solver.Add(
             0 <= b_abs - b,
             'b_abs_value_constraint_1_' + suffix
@@ -1287,9 +1289,6 @@ def formulate_hvdc_Pmode3_single_flow(
             b_abs - b <= 2 * rate * zb,
             'b_abs_value_constraint_2_' + suffix
         )
-
-        # 0 <= b_abs + b <= 2 * rate * (1-zb), when zb = 1, then b = -b_abs.
-        # Otherwise, a value between 0 and lim_a
         solver.Add(
             0 <= b_abs + b,
             'b_abs_value_constraint_3_' + suffix
@@ -1300,64 +1299,45 @@ def formulate_hvdc_Pmode3_single_flow(
             'b_abs_value_constraint_4_' + suffix
         )
 
-        # a and b must be the same sign.
+        #New constraints to model HVSDC behaviour
+
+        zc = solver.BoolVar(
+            'zc_' + suffix
+        )
+
+        solver.Add(
+            rate - M * (1 - zc) <= b_abs,
+            'behaviour_Pmode3_1_' + suffix
+        )
+
+        solver.Add(
+            b_abs <= rate + M * (1 - zc),
+            'behaviour_Pmode3_2_' + suffix
+        )
+
+        solver.Add(
+            a_abs - M * zc <= b_abs,
+            'behaviour_Pmode3_3_' + suffix
+        )
+
+        solver.Add(
+            b_abs <= a_abs + M * zc,
+            'behaviour_Pmode3_4_' + suffix
+        )
+
+
+
         solver.Add(
             za - zb == 0,
             'same_sign_' + suffix
         )
 
-        # add additional constraints to implement saturation behavior
-        zc = solver.BoolVar(
-            'zc_' + suffix
-        )
-
-        # Andres
-        solver.Add(
-            rate * zc <= b_abs,
-            'saturation_contraint_1_' + suffix
-        )
-
-        solver.Add(
-            b_abs <= rate,
-            'saturation_contraint_2_' + suffix
-        )
-
-        solver.Add(
-            b_abs <= a_abs,
-            'saturation_contraint_3_' + suffix
-        )
-
-        solver.Add(
-            a_abs <= (lim_a - rate) * zc + b_abs,
-            'saturation_contraint_4_' + suffix
-        )
-
-        # # Fernando
-        # M = lim_a
-        # solver.Add(
-        #     rate - M * (1-zc) <= b_abs,
-        #     'saturation_constraint_1_' + suffix,
-        # )
-        #
-        # solver.Add(
-        #     b_abs <= rate + M * (1-zc),
-        #     'saturation_constraint_2_' + suffix,
-        # )
-        #
-        # solver.Add(
-        #     a_abs - M * zc <= b_abs,
-        #     'saturation_constraint_3_' + suffix,
-        # )
-        #
-        # solver.Add(
-        #     b_abs <= a_abs + M * zc,
-        #     'saturation_constraint_4_' + suffix,
-        # )
 
     else:
-        b = 0
+        b=0
 
     return b
+
 
 
 def formulate_hvdc_flow(solver: pywraplp.Solver, nhvdc, names, rate, angles, angles_max, hvdc_active, Pt, angle_droop, control_mode,
@@ -1417,8 +1397,8 @@ def formulate_hvdc_flow(solver: pywraplp.Solver, nhvdc, names, rate, angles, ang
                     angle_droop=angle_droop[i],
                     angle_max_f=angles_max[_f],
                     angle_max_t=angles_max[_t],
-                    angle_f=angles[_f],
-                    angle_t=angles[_t],
+                    angles_f=angles[_f],
+                    angles_t=angles[_t],
                     suffix=suffix,
                 )
 
@@ -1466,7 +1446,7 @@ def formulate_hvdc_flow(solver: pywraplp.Solver, nhvdc, names, rate, angles, ang
 
 def formulate_hvdc_flow_old(solver: pywraplp.Solver, nhvdc, names, rate, angles, hvdc_active, Pt, angle_droop, control_mode,
                         dispatchable, F, T, Pinj, Sbase, inf, inter_area_hvdc,
-                        logger: Logger, force_exchange_sense=False):
+                        logger: Logger, force_exchange_sense=False, angles_max=None):
     """
     Formulate the HVDC flow
     :param solver: Solver instance to which add the equations
