@@ -29,6 +29,7 @@ def kmeans_sampling(X, n_points=10):
     tm0 = time.time()
 
     # declare the model
+
     model = KMeans(n_clusters=n_points, random_state=0, n_init=10)
 
     tm1 = time.time()
@@ -105,8 +106,8 @@ def kmeans_approximate_sampling(X, n_points=10):
     print(f'kmeans: second loop in {time.time() - tm1:.2f} scs.')
     tm1 = time.time()
 
-    csv_path = r'\\mornt4.ree.es\DESRED\DPE-Internacional\Interconexiones\FRANCIA\2023 MoU Pmode3\Pmode3_conting\8GW\h_pmode1\kmeans_.csv'
-    pd.DataFrame([closest_idx, closest_prob], index=['idx', 'prob']).T.to_csv(csv_path, index=False)
+    #csv_path = r'\\mornt4.ree.es\DESRED\DPE-Internacional\Interconexiones\FRANCIA\2023 MoU Pmode3\Pmode3_conting\8GW\h_pmode1\kmeans_.csv'
+    #pd.DataFrame([closest_idx, closest_prob], index=['idx', 'prob']).T.to_csv(csv_path, index=False)
     print(f'He tardado {time.time()-tm0:.2f} scs.')
     return closest_idx, closest_prob
 
