@@ -26,10 +26,8 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8505bdb8-aed1-4f5a-b813-ab3c0bff5643" name="Changes" comment="changing reports to include angles">
+    <list default="true" id="8505bdb8-aed1-4f5a-b813-ab3c0bff5643" name="Changes" comment="Fixed reports to include angles">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GridCal/Engine/Simulations/NTC/ntc_results.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/GridCal/Engine/Simulations/NTC/ntc_results.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GridCal/__version__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/GridCal/__version__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -169,23 +167,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/ReposGit/mornt4/HornoPniec&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.idesettings.debugger.python&quot;,
-    &quot;settings.editor.splitter.proportion&quot;: &quot;0.28680688&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/ReposGit/mornt4/HornoPniec",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "settings.editor.splitter.proportion": "0.28680688",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="PyDebuggerOptionsProvider">
     <option name="mySaveCallSignatures" value="true" />
     <option name="mySupportGeventDebugging" value="true" />
@@ -207,7 +205,7 @@
       <recent name="$PROJECT_DIR$/src/research/derivatives_and_jacobian" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.setup">
+  <component name="RunManager" selected="Python.ExecuteGridCal">
     <configuration default="true" type="DjangoTestsConfigurationType">
       <module name="GridCalEngine" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -1209,20 +1207,6 @@
       <workItem from="1686590782319" duration="3299000" />
       <workItem from="1686641662191" duration="8615000" />
     </task>
-    <task id="LOCAL-00345" summary="Updated the version file">
-      <created>1662029493419</created>
-      <option name="number" value="00345" />
-      <option name="presentableId" value="LOCAL-00345" />
-      <option name="project" value="LOCAL" />
-      <updated>1662029493419</updated>
-    </task>
-    <task id="LOCAL-00346" summary="Added losses % to the power flow time series&#10;Minor refactors of the GUI">
-      <created>1662042947521</created>
-      <option name="number" value="00346" />
-      <option name="presentableId" value="LOCAL-00346" />
-      <option name="project" value="LOCAL" />
-      <updated>1662042947521</updated>
-    </task>
     <task id="LOCAL-00347" summary="csc sparse branch derivatives">
       <created>1662061867029</created>
       <option name="number" value="00347" />
@@ -1552,7 +1536,21 @@
       <option name="project" value="LOCAL" />
       <updated>1697444937528</updated>
     </task>
-    <option name="localTasksCounter" value="394" />
+    <task id="LOCAL-00394" summary="Fixed reports to include angles">
+      <created>1698046357676</created>
+      <option name="number" value="00394" />
+      <option name="presentableId" value="LOCAL-00394" />
+      <option name="project" value="LOCAL" />
+      <updated>1698046357676</updated>
+    </task>
+    <task id="LOCAL-00395" summary="Fixed reports to include angles">
+      <created>1698129903982</created>
+      <option name="number" value="00395" />
+      <option name="presentableId" value="LOCAL-00395" />
+      <option name="project" value="LOCAL" />
+      <updated>1698129903982</updated>
+    </task>
+    <option name="localTasksCounter" value="396" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1620,7 +1618,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added investment classes" />
     <MESSAGE value="Fixed issues with the merge" />
     <MESSAGE value="early colouring the slippy map" />
     <MESSAGE value="early colouring the slippy map (working)" />
@@ -1645,7 +1642,8 @@
     <MESSAGE value="version 4.6.1b.4 (v4)&#10;&#10;- MOU v0 equivalent&#10;- Fixed generation (scale and contingency)&#10;- New HVDC flow (pmode3 affection)&#10;- New contingencies function (lodfnx)&#10;- Fixed contingencies function (ptdf signs)" />
     <MESSAGE value="fixed bug bus angle sign solution" />
     <MESSAGE value="changing reports to include angles" />
-    <option name="LAST_COMMIT_MESSAGE" value="changing reports to include angles" />
+    <MESSAGE value="Fixed reports to include angles" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed reports to include angles" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
